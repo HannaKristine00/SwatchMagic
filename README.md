@@ -17,9 +17,9 @@ A **swatch** in knitting is a small sample square of knitted fabric used to test
 
 1. Clone the repository
 
-        git clone
+        git clone git@github.com:HannaKristine00/SwatchMagic.git
 
-        cd knitswatch
+        cd SwatchMagic/
    
 3. Create virtual environment
 
