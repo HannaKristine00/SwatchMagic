@@ -2,9 +2,8 @@ import os
 import time
 from pathlib import Path
 import requests
+from .env import RAVELRY_USER, RAVELRY_PASS
 
-RAVELRY_USER = "read-12ceeeeb886526c83bb9f127018bc00b"
-RAVELRY_PASS = "UkhzqWyQxrvFB/gs24fd2WnJ42sv3vM6IVqE3uv5"
 auth = (RAVELRY_USER, RAVELRY_PASS)
 BASE_URL = "https://api.ravelry.com"
 
