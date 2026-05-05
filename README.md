@@ -23,9 +23,15 @@ A **swatch** in knitting is a small sample square of knitted fabric used to test
    
 3. Create virtual environment
 
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+        python3 -m venv venv
+
+4. Activate virtual environment
+
+        source venv/bin/activate
+
+5. Install dependencies
+
+        pip install -r requirements.txt
 
 ## Generating swatch 
 1. Run program
