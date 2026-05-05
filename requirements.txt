@@ -1,1 +1,9 @@
 requests
+torch
+torchvision
+pyyaml
+datasets
+diffusers
+transformers
+accelerate
+safetensors
