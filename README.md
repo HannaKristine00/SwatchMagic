@@ -33,6 +33,13 @@ A **swatch** in knitting is a small sample square of knitted fabric used to test
 
         pip install -r requirements.txt
 
+6. API Keys
+
+        Create .env file and add:
+        RAVELRY_USER = "input username"
+        RAVERLY_PASS = "insert API password"
+
+ 
 ## Generating swatch 
 1. Run program
 2. Write pattern idea in the text box
