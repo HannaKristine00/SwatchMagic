@@ -1,11 +1,19 @@
 # Training configuration for LoRA fine-tuning of Stable Diffusion
+
 model_id: "runwayml/stable-diffusion-v1-5"
 dataset_path: "data/dataset/hf_dataset"
-output_dir: "training/lora_weights"
+output_dir: "training/lora_weights_run_A"   # change per run: run_A, run_B, ...
 
 learning_rate: 1e-4
 num_epochs: 20
 batch_size: 4
 lora_rank: 4
 image_size: 512
-mixed_precision: "fp16"  # use "no" if you hit precision issues
+mixed_precision: "fp16"    # use "no" if you hit precision issues
+lr_scheduler: "cosine"     # options: "none", "cosine", "linear"
+
+# Evaluation
+eval_every_n_epochs: 5
+val_dataset_path: "data/dataset/hf_dataset_val"
+train_meta_path: "data/dataset/metadata.json"
+eval_output_dir: "evaluation"
