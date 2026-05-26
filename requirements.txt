@@ -13,3 +13,4 @@ lpips
 torchmetrics
 scikit-image
 python-dotenv
+peft
