@@ -14,3 +14,4 @@ torchmetrics
 scikit-image
 python-dotenv
 peft
+ipywidgets

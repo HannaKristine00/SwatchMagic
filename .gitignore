@@ -3,5 +3,5 @@
 __pycache__/
 dataset/
 training/lora_weights/
-training/training/lora_weights/
+training/training/
 venv/
