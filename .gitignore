@@ -2,6 +2,4 @@
 .env
 __pycache__/
 dataset/
-training/lora_weights/
-training/training/
 venv/
