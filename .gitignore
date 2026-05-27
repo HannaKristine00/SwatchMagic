@@ -3,3 +3,6 @@
 __pycache__/
 dataset/
 venv/
+data/datasetnew
+data/.DS_Store
+.DS_Store
