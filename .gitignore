@@ -7,3 +7,6 @@ data/datasetnew
 data/.DS_Store
 .DS_Store
 data/info_hf_dataset.py
+training/training
+training/data
+training/training
