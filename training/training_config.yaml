@@ -1,11 +1,11 @@
 # Training configuration for LoRA fine-tuning of Stable Diffusion
 
 model_id: "runwayml/stable-diffusion-v1-5"
-dataset_path: "/data/hfa033/SwatchMagic/data/dataset/hf_dataset"
-output_dir: "weights/lora_weights_run_A"   # change per run: run_A, run_B, ...
+dataset_path: "/data/tla141/INF3600/SwatchMagic/data/dataset/hf_dataset"
+output_dir: "weights/lora_weights_run_B"   # change per run: run_A, run_B, ...
 
-learning_rate: 0.0001
-num_epochs: 20
+learning_rate: 0.00005
+num_epochs: 30
 batch_size: 4
 lora_rank: 4
 image_size: 512
