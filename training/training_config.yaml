@@ -2,7 +2,7 @@
 
 model_id: "runwayml/stable-diffusion-v1-5"
 dataset_path: "/data/hfa033/SwatchMagic/data/dataset/hf_dataset"
-output_dir: "training/lora_weights_run_A"   # change per run: run_A, run_B, ...
+output_dir: "weights/lora_weights_run_A"   # change per run: run_A, run_B, ...
 
 learning_rate: 0.0001
 num_epochs: 20
