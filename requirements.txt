@@ -7,3 +7,11 @@ diffusers
 transformers
 accelerate
 safetensors
+matplotlib
+numpy
+lpips
+torchmetrics
+scikit-image
+python-dotenv
+peft
+ipywidgets
