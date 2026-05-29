@@ -34,8 +34,8 @@ from tqdm import tqdm
 from diffusers import StableDiffusionPipeline
 from transformers import (
     CLIPProcessor, CLIPModel,
-    ViTForImageClassification, ViTFeatureExtractor,
-    AutoFeatureExtractor,
+    ViTForImageClassification,
+    AutoImageProcessor,
 )
 
 # Torchvision / metrics
@@ -163,8 +163,7 @@ class DomainClassifier:
         self.stitch_model = None
         self.weight_model = None
 
-        self.feature_extractor = AutoFeatureExtractor.from_pretrained("google/vit-base-patch16-224")
-
+        self.image_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
         if stitch_ckpt and Path(stitch_ckpt).exists():
             self.stitch_model = ViTForImageClassification.from_pretrained(
                 stitch_ckpt, num_labels=len(STITCH_LABELS), ignore_mismatched_sizes=True
@@ -176,7 +175,7 @@ class DomainClassifier:
             ).to(device).eval()
 
     def predict(self, image: Image.Image):
-        inputs = self.feature_extractor(images=image, return_tensors="pt").to(self.device)
+        inputs = self.image_processor(image, return_tensors="pt").to(self.device)
         stitch_pred = weight_pred = None
 
         with torch.no_grad():
@@ -391,6 +390,7 @@ def save_sample_grid(generated: list[dict], output_dir: Path, n: int = 16):
 # ---------------------------------------------------------------------------
 
 def main():
+    
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint",       required=True,  help="Path to LoRA checkpoint dir")
     parser.add_argument("--val_dataset",      required=True,  help="Path to HF val dataset on disk")
@@ -403,11 +403,13 @@ def main():
     parser.add_argument("--weight_classifier", default=None,  help="Path to yarn weight classifier checkpoint")
     parser.add_argument("--epoch",            type=int, default=0, help="Epoch number for logging")
     args = parser.parse_args()
-
-    DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
-    print(f"Device: {DEVICE}")
+    
+    DEVICE = "cuda:1" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    print(f"Using device: {DEVICE}")        
+    
 
     output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # ── Load pipeline ────────────────────────────────────────────────────────
     print("\n[1/6] Loading pipeline and generating images...")
@@ -420,21 +422,27 @@ def main():
     gen_images = [g["image"] for g in generated]
     save_sample_grid(generated, output_dir)
 
-    # ── Load val + train images ───────────────────────────────────────────────
-    from datasets import load_from_disk
-    val_ds     = load_from_disk(args.val_dataset)
-    val_images = [val_ds[i]["image"] for i in range(len(val_ds))]
 
+    # ── Load real images from disk (for FID + memorization) ───────────────────
+    # The HF val dataset is preprocessed (pixel_values/input_ids), so we load the
+    # raw swatch images instead. These serve as FID's real reference distribution.
     with open(args.train_meta) as f:
         train_meta = json.load(f)
-    train_dir   = Path(args.train_meta).parent / "images"
+    image_dir = Path(args.train_meta).parent / "images"
+
     train_images = []
     for m in train_meta:
-        p = train_dir / m["filename"]
+        p = image_dir / m["filename"]
         if p.exists():
             train_images.append(Image.open(p).convert("RGB"))
 
-    print(f"  Val images: {len(val_images)} | Train images: {len(train_images)}")
+    if not train_images:
+        raise ValueError(f"No images found in {image_dir} — check --train_meta path")
+
+    # Use the full real-image set as FID's reference distribution.
+    val_images = train_images
+
+    print(f"  Real images for FID: {len(val_images)} | Train images: {len(train_images)}")
 
     # ── FID ──────────────────────────────────────────────────────────────────
     print("\n[2/6] Computing FID...")
@@ -488,7 +496,6 @@ def main():
     for k, v in results.items():
         print(f"  {k:<25} {v}")
     print("────────────────────────────────────────────────────────────\n")
-
 
 if __name__ == "__main__":
     main()
