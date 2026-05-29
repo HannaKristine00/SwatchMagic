@@ -1,0 +1,4 @@
+timestamp,epoch,checkpoint,n_generated,fid,clip_score,stitch_accuracy,weight_accuracy,mean_min_lpips,mean_max_ssim,pct_memorized,diversity_lpips
+2026-05-29T17:20:02.504616,0,/data/tla141/INF3600/SwatchMagic/training/weights/lora_weights_run_B/checkpoint_epoch13,240,85.447,0.2661,,,0.648,0.1308,0.0,0.7398
+2026-05-29T17:25:48.854230,0,/data/tla141/INF3600/SwatchMagic/training/weights/lora_weights_run_B/checkpoint_epoch20,240,84.743,0.2625,,,0.645,0.1192,0.0,0.7343
+2026-05-29T17:31:47.100355,0,/data/tla141/INF3600/SwatchMagic/training/weights/lora_weights_run_B/checkpoint_epoch29,240,82.122,0.2622,,,0.6397,0.1154,0.0,0.7204
