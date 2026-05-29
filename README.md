@@ -4,13 +4,9 @@
 
 > ### Knitting should feel creative, not frustrating.
 
-Our AI-powered app, SwatchMagic, lets knitters generate and preview custom knitting swatches instantly, so you can explore patterns, test ideas, and visualize your designs before you ever pick up your needles. Fitting for beginners to experts, SwatchMagic can also create beautiful, origional colorwork or cable patterns from vague ideas or dreams. 
+Our AI-powered app, SwatchMagic, lets knitters generate and preview custom knitting images instantly, so you can explore patterns, test ideas, and visualize your designs before you ever pick up your needles. Fitting for beginners to experts, SwatchMagic can also create beautiful, origional colorwork or cable patterns from vague ideas or dreams. 
 
 Save time, skip the guesswork, and focus on what matters: creating.
-
-
-## What is a swatch?
-A **swatch** in knitting is a small sample square of knitted fabric used to test or preview a design before making the full version. Swatches are created to test gauge, pattern or stitch design, see how yarn behaves or try out color combinations, often of the size 10cm x 10cm.
 
 
 ## Environmental Setup
@@ -23,11 +19,11 @@ A **swatch** in knitting is a small sample square of knitted fabric used to test
    
 3. Create virtual environment
 
-        python3 -m venv venv
+        python3 -m venv .venv
 
 4. Activate virtual environment
 
-        source venv/bin/activate
+        source .venv/bin/activate
 
 5. Install dependencies
 
@@ -42,12 +38,14 @@ A **swatch** in knitting is a small sample square of knitted fabric used to test
  
 ## Generating swatch 
 1. Run program
-2. Write pattern idea in the text box
-3. Click on "Generate"
 
+        gradio app.py
 
-## Training ...
-
+2. Open in web browser on <mark>http://127.0.0.1:7860<mark/>
+   
+3. Write pattern idea in the text box
+5. Click on "Generate" brutton to create knitting image
+6. Preview and download image
 
 ---
 
