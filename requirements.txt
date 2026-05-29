@@ -20,3 +20,4 @@ scikit-image
 torchmetrics
 lpips
 torch-fidelity
+gradio
