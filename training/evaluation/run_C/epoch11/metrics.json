@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-05-29T17:01:49.138924",
+  "epoch": 0,
+  "checkpoint": "/data/tla141/INF3600/SwatchMagic/training/weights/lora_weights_run_C/checkpoint_epoch11",
+  "n_generated": 240,
+  "fid": 82.422,
+  "clip_score": 0.2586,
+  "stitch_accuracy": null,
+  "weight_accuracy": null,
+  "mean_min_lpips": 0.6395,
+  "mean_max_ssim": 0.1153,
+  "pct_memorized": 0.0,
+  "diversity_lpips": 0.7214
+}
