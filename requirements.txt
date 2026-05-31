@@ -15,3 +15,9 @@ scikit-image
 python-dotenv
 peft
 ipywidgets
+"torchmetrics[image]"
+scikit-image
+torchmetrics
+lpips
+torch-fidelity
+gradio
