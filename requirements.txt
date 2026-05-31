@@ -15,7 +15,7 @@ scikit-image
 python-dotenv
 peft
 ipywidgets
-"torchmetrics[image]"
+torchmetrics[image]
 scikit-image
 torchmetrics
 lpips
