@@ -12,9 +12,13 @@ Usage:
 import torch
 import gradio as gr
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+from pathlib import Path
 
 BASE_MODEL   = "runwayml/stable-diffusion-v1-5"
-LORA_PATH    = "/data/skr155/SwatchMagic/training/training/lora_weights_run_A/checkpoint_best"
+
+BASE_DIR = Path(__file__).parent
+LORA_PATH = BASE_DIR / "training" / "weights" / "lora_weights_run_A" / "checkpoint_best"
+
 TRIGGER_WORD = ""
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
