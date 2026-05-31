@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-05-30T11:06:38.498971",
+  "epoch": 0,
+  "checkpoint": "/data/hfa033/SwatchMagic/training/weights/lora_weights_run_D/checkpoint_epoch15/",
+  "n_generated": 240,
+  "fid": 80.914,
+  "clip_score": 0.2603,
+  "stitch_accuracy": null,
+  "weight_accuracy": null,
+  "mean_min_lpips": 0.6555,
+  "mean_max_ssim": 0.1404,
+  "pct_memorized": 0.0,
+  "diversity_lpips": 0.7511
+}
