@@ -39,11 +39,11 @@ Save time, skip the guesswork, and focus on what matters: creating.
 ## Generating swatch 
 1. Run program
 
-        gradio app.py
+        python app.py
 
-2. Open in web browser on <mark>http://127.0.0.1:7860<mark/>
+3. Open in web browser on <mark>http://127.0.0.1:7860<mark/>
    
-3. Write pattern idea in the text box
+4. Write pattern idea in the text box
 5. Click on "Generate" brutton to create knitting image
 6. Preview and download image
 
