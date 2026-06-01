@@ -49,8 +49,7 @@ Save time, skip the guesswork, and focus on what matters: creating.
 
 
 ## Video Demo
-[![Watch the demo here!](https://img.youtube.com/vi/VIDEO_ID/0.jpg)]
-(https://youtu.be/q_zKx4ksjhY)
+Watch the demo (including the environmental setup and how to run the app) here: <mark>https://youtu.be/q_zKx4ksjhY<mark/>
 
 ---
 
