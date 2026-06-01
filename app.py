@@ -3,24 +3,28 @@ SwatchMagic - LoRA test interface
 Generate knitting swatches from text prompts using a fine-tuned SD 1.5 LoRA.
 
 Usage:
-    1. Set LORA_PATH below to your saved weights.
-    2. pip install -r requirements.txt
-    3. python app.py (alt. gradio app.py (live updates))
-    4. Open http://127.0.0.1:7860
+    1. pip install -r requirements.txt
+    2. python app.py  (alt. gradio app.py for live updates)
+    3. Open http://127.0.0.1:7860
 """
 
+from pathlib import Path
 import torch
 import gradio as gr
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
-from pathlib import Path
 
+# ── Paths & model config ─────────────────────────────────────────────────────
+BASE_DIR     = Path(__file__).parent
 BASE_MODEL   = "runwayml/stable-diffusion-v1-5"
-
-BASE_DIR = Path(__file__).parent
-LORA_PATH = BASE_DIR / "training" / "weights" / "lora_weights_run_A" / "checkpoint_best"
-
+LORA_PATH = BASE_DIR / "training" / "weights" / "lora_weights_run_E" / "checkpoint_epoch5" / "pytorch_lora_weights.safetensors"
 TRIGGER_WORD = ""
 
+# ── Generation defaults (used when advanced settings are not changed) ────────
+DEFAULT_STEPS      = 25
+DEFAULT_GUIDANCE   = 7.5
+DEFAULT_LORA_SCALE = 1.0
+
+# ── Device setup ─────────────────────────────────────────────────────────────
 device = "cuda" if torch.cuda.is_available() else "cpu"
 dtype  = torch.float16 if device == "cuda" else torch.float32
 
@@ -30,60 +34,53 @@ pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 pipe = pipe.to(device)
 
 print(f"Loading LoRA from {LORA_PATH}...")
-pipe.load_lora_weights(LORA_PATH)
+pipe.load_lora_weights(str(LORA_PATH))
 print("Ready.")
 
 
-
 # ── "System prompt" equivalents for Stable Diffusion ────────────────────────
-# PROMPT_PREFIX is prepended to every user prompt to anchor the model in the
-# knitting/swatch domain — analogous to a system prompt for a language model.
 PROMPT_PREFIX = (
     "knitting, knitted clothing, textile, yarn texture, fiber craft"
 )
- 
-# NEGATIVE_PROMPT_SUFFIX steers the model away from non-knitting subjects.
-NEGATIVE_PROMPT_SUFFIX = (
-    "people, faces, animals, dog, cat, food, weather, landscape, architecture, cars, "
+
+NEGATIVE_PROMPT = (
+    "animals, dog, cat, food, weather, landscape, architecture, cars, "
     "digital art, painting, illustration, animation, cartoon, text, watermark, "
     "blurry, low quality, distorted"
 )
- 
-# Keywords that confirm the prompt is knitting-related.
-# If none appear, the request is rejected before hitting the GPU.
+
 KNITTING_KEYWORDS = {
     "knit", "knitting", "yarn", "wool", "stitch", "swatch", "fiber", "fibre",
     "crochet", "lace", "cable", "ribbed", "rib", "pattern", "weight", "dk",
     "worsted", "aran", "fingering", "bulky", "sport", "colorwork", "fair isle",
-    "moss", "seed", "texture", "textile", "fabric", "woven", "cardigan", "vest",
-    "sweater", "scarf", "shawl", "stockinette", "ribbing", "chunky", "stranded",
+    "moss", "seed", "texture", "textile", "fabric", "woven", "cardigan",
+    "sweater", "stockinette", "ribbing", "chunky", "stranded", "garter",
+    "brioche", "honeycomb", "popcorn",
 }
- 
- 
-def generate(prompt, steps, guidance, seed, lora_scale):
+
+
+def generate(prompt, steps, guidance, lora_scale, seed):
     if not prompt or not prompt.strip():
         raise gr.Error("Please enter a prompt describing the swatch.")
- 
-    # Domain guard — reject clearly off-topic prompts
+
     lowered = prompt.lower()
     if not any(kw in lowered for kw in KNITTING_KEYWORDS):
         raise gr.Error(
             "Please describe a knitting swatch — include details like stitch "
             "type, yarn weight, or fibre (e.g. 'cable knit, worsted, cream wool')."
         )
- 
-    # Build the final prompt: prefix + trigger word (if set) + user prompt
+
     full_prompt = PROMPT_PREFIX + ", " + prompt.strip()
     if TRIGGER_WORD and TRIGGER_WORD not in full_prompt:
         full_prompt = f"{TRIGGER_WORD}, {full_prompt}"
- 
+
     generator = None
     if seed is not None and int(seed) >= 0:
         generator = torch.Generator(device=device).manual_seed(int(seed))
- 
+
     image = pipe(
         prompt=full_prompt,
-        negative_prompt=NEGATIVE_PROMPT_SUFFIX,
+        negative_prompt=NEGATIVE_PROMPT,
         num_inference_steps=int(steps),
         guidance_scale=float(guidance),
         generator=generator,
@@ -91,7 +88,8 @@ def generate(prompt, steps, guidance, seed, lora_scale):
     ).images[0]
     return image
 
-# ── CSS section ─────────────────────────────────────────────────────────────────────
+
+# ── CSS ──────────────────────────────────────────────────────────────────────
 css = """
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
@@ -114,54 +112,50 @@ css = """
   --radius-lg: 14px;
 }
 
-/* ── reset / shell ── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html,
-body,
-.gradio-container,
-.gradio-container > .wrap,
-.app,
-.app > .wrap,
-.main,
-.contain {
+html, body, .gradio-container, .gradio-container > .wrap,
+.app, .app > .wrap, .main, .contain {
   font-family: 'DM Sans', sans-serif !important;
   background: var(--white) !important;
   color: var(--text) !important;
 }
 
 .gradio-container {
-  max-width: 2800px !important;
+  max-width: 1300px !important;
   margin: 0 auto !important;
   padding: 0 clamp(12px, 3vw, 32px) 40px !important;
 }
 footer { display: none !important; }
 
-/* ── erase ALL dark panel backgrounds Gradio injects ── */
-.panel,
-.form,
-.block,
-.gap,
-.gr-block,
-.gr-form,
-.gr-group,
-.gr-box,
-.gr-panel,
-fieldset,
-.gr-accordion,
-.gr-accordion > .label-wrap,
-.tab-nav,
-.tabitem,
-.tabs,
-.gr-prose,
-.gr-padded {
+.panel, .form, .block, .gap, .gr-block, .gr-form, .gr-group,
+.gr-box, .gr-panel, fieldset, .gr-accordion, .gr-accordion > .label-wrap,
+.tab-nav, .tabitem, .tabs, .gr-prose, .gr-padded {
   background: var(--white) !important;
   border-color: var(--rule) !important;
   box-shadow: none !important;
   color: var(--text) !important;
 }
 
-/* ── top gradient bar ── */
+/* ── accordion + examples label color fix ── */
+.gr-accordion button span,
+.gr-accordion button p,
+details summary span,
+details summary p,
+details summary,
+.examples-holder > .label,
+.examples-holder > label,
+.examples > .label,
+.examples label,
+.label-wrap span,
+.label-wrap p,
+button.accordion-header,
+button.accordion-header span {
+  color: #2E2A27 !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}
+
 #topbar {
   height: 3px;
   background: linear-gradient(90deg, var(--pk), var(--or));
@@ -169,7 +163,6 @@ fieldset,
   margin-bottom: 0;
 }
 
-/* ── header ── */
 #app-header {
   background: var(--white) !important;
   border-bottom: 1px solid var(--rule);
@@ -177,10 +170,7 @@ fieldset,
   margin-bottom: 28px;
 }
 
-/* ── Gradio field labels ── */
-label > span,
-.gr-form label span,
-.block > label > span {
+label > span, .gr-form label span, .block > label > span {
   font-family: 'DM Sans', sans-serif !important;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -189,10 +179,7 @@ label > span,
   color: var(--hint) !important;
 }
 
-/* ── text inputs / textarea ── */
-textarea,
-input[type="text"],
-input[type="number"] {
+textarea, input[type="text"], input[type="number"] {
   font-family: 'DM Sans', sans-serif !important;
   font-size: 14px !important;
   color: var(--text) !important;
@@ -201,21 +188,15 @@ input[type="number"] {
   border-radius: var(--radius-md) !important;
   transition: border-color 0.15s, box-shadow 0.15s !important;
 }
-textarea:focus,
-input[type="text"]:focus,
-input[type="number"]:focus {
+textarea:focus, input[type="text"]:focus, input[type="number"]:focus {
   border-color: var(--pk) !important;
   box-shadow: 0 0 0 3px rgba(232,93,150,0.12) !important;
   background: var(--white) !important;
   outline: none !important;
 }
 
-/* ── sliders ── */
-input[type="range"] {
-  accent-color: var(--pk) !important;
-}
-.gr-slider .value-text,
-input[type="range"] + span {
+input[type="range"] { accent-color: var(--pk) !important; }
+.gr-slider .value-text, input[type="range"] + span {
   background: var(--pk-l) !important;
   color: var(--pk-d) !important;
   border-radius: 20px !important;
@@ -225,9 +206,7 @@ input[type="range"] + span {
   border: none !important;
 }
 
-/* ── generate button ── */
-#gen-btn > .wrap > button,
-#gen-btn button {
+#gen-btn > .wrap > button, #gen-btn button {
   font-family: 'DM Sans', sans-serif !important;
   font-size: 14px !important;
   font-weight: 500 !important;
@@ -242,19 +221,16 @@ input[type="range"] + span {
   box-shadow: 0 2px 12px rgba(232,93,150,0.22) !important;
   letter-spacing: 0.01em !important;
 }
-#gen-btn > .wrap > button:hover,
-#gen-btn button:hover {
+#gen-btn > .wrap > button:hover, #gen-btn button:hover {
   opacity: 0.88 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 5px 18px rgba(232,93,150,0.32) !important;
 }
-#gen-btn > .wrap > button:active,
-#gen-btn button:active {
+#gen-btn > .wrap > button:active, #gen-btn button:active {
   transform: translateY(0) !important;
   opacity: 1 !important;
 }
 
-/* ── control panel ── */
 #left-col {
   background: var(--white) !important;
   border: 1px solid var(--rule) !important;
@@ -263,7 +239,6 @@ input[type="range"] + span {
   min-width: 0;
 }
 
-/* ── preview panel ── */
 #right-col {
   background: var(--surf) !important;
   border: 1px solid var(--rule) !important;
@@ -272,10 +247,7 @@ input[type="range"] + span {
   min-width: 0;
 }
 
-/* ── image output ── */
-#swatch-out,
-#swatch-out > .wrap,
-#swatch-out .wrap {
+#swatch-out, #swatch-out > .wrap, #swatch-out .wrap {
   background: var(--white) !important;
   border: 1px solid var(--rule) !important;
   border-radius: var(--radius-md) !important;
@@ -289,13 +261,7 @@ input[type="range"] + span {
   display: block !important;
 }
 
-/* ── meta badges ── */
-.meta-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
+.meta-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 .mbadge {
   font-size: 11px;
   font-weight: 500;
@@ -306,29 +272,24 @@ input[type="range"] + span {
   border: 1px solid #FFE3CC;
 }
 
-/* ── examples table ── */
-.gr-samples-table,
-.examples-holder table {
+.gr-samples-table, .examples-holder table {
   background: var(--white) !important;
   border: 1px solid var(--rule) !important;
   border-radius: var(--radius-md) !important;
   overflow: hidden !important;
 }
-.gr-samples-table td,
-.examples-holder td {
+.gr-samples-table td, .examples-holder td {
   font-size: 13px !important;
   color: var(--muted) !important;
   padding: 8px 12px !important;
   background: var(--white) !important;
 }
-.gr-samples-table tr:hover td,
-.examples-holder tr:hover td {
+.gr-samples-table tr:hover td, .examples-holder tr:hover td {
   background: var(--pk-l) !important;
   color: var(--pk-d) !important;
   cursor: pointer;
 }
 
-/* ── main row — responsive two-col that stacks on narrow screens ── */
 #main-row {
   display: flex !important;
   gap: clamp(12px, 2vw, 24px) !important;
@@ -340,14 +301,11 @@ input[type="range"] + span {
 #left-col  { flex: 1 1 320px; }
 #right-col { flex: 1 1 320px; }
 
-/* number input spin button opacity */
 input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  opacity: 0.4;
-}
+input[type="number"]::-webkit-outer-spin-button { opacity: 0.4; }
 """
 
-# ── HTML fragments ──────────────────────────────────────────────────────────
+# ── HTML fragments ───────────────────────────────────────────────────────────
 HEADER = """
 <div id="topbar"></div>
 <div id="app-header">
@@ -358,7 +316,7 @@ HEADER = """
           <path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>
         </svg>
       </div>
-      <span style="font-family:'DM Sans',sans-serif;font-size:45px;font-weight:700;color:#E85D96;letter-spacing:-0.02em;">
+      <span style="font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;color:#E85D96;letter-spacing:-0.02em;">
         ✨SwatchMagic✨
       </span>
     </div>
@@ -385,11 +343,11 @@ FOOTER = """
   <em style="color:#D4537E;">cable knit, worsted weight, cream wool</em>
 </p>
 <p style="font-family:'DM Sans',sans-serif;font-size:12px;color:#B5B0AB;text-align:center;padding:0 0 14px;margin:0;">
-  Made by the<a href="https://github.com/HannaKristine00/SwatchMagic" target="_blank" style="color:#D4537E;text-decoration:underline;">SwatchMagic Team</a>
+  Made by the <a href="https://github.com/HannaKristine00/SwatchMagic" target="_blank" style="color:#D4537E;text-decoration:underline;">SwatchMagic Team</a>
 </p>
 """
 
-# ── Layout ──────────────────────────────────────────────────────────────────
+# ── Layout ───────────────────────────────────────────────────────────────────
 with gr.Blocks(
     title="SwatchMagic",
     css=css,
@@ -408,7 +366,6 @@ with gr.Blocks(
         button_primary_border_color="transparent",
         input_background_fill="#F9F8F7",
         input_border_color="#E8E5E2",
-        slider_color="#E85D96",
         background_fill_primary="#FFFFFF",
         background_fill_secondary="#F9F8F7",
         border_color_primary="#E8E5E2",
@@ -421,47 +378,47 @@ with gr.Blocks(
 
     with gr.Row(elem_id="main-row", equal_height=False):
 
-        # ── Controls ──────────────────────────────────────────────────────
+        # ── Controls ─────────────────────────────────────────────────────
         with gr.Column(scale=1, elem_id="left-col"):
             prompt = gr.Textbox(
                 label="Describe your swatch",
-                placeholder="Write prompt... (stitch, yarn, weight, colors, etc.)",
-                lines=5,
+                placeholder="e.g. cable knit, worsted weight, cream wool",
+                lines=3,
             )
-
-            with gr.Row():
-                steps    = gr.Slider(10, 50,  value=25,  step=1,   label="Steps")
-                guidance = gr.Slider(1,  15,  value=7.5, step=0.5, label="Guidance scale")
-
-            with gr.Row():
-                lora_scale = gr.Slider(0.0, 1.5, value=1.0, step=0.05, label="LoRA strength")
-                seed       = gr.Number(value=-1, label="Seed  (−1 = random)", precision=0)
 
             gen_btn = gr.Button("✦  Generate", variant="primary", elem_id="gen-btn")
 
+            with gr.Accordion("Advanced settings", open=False):
+                steps      = gr.Slider(10, 50,  value=DEFAULT_STEPS,      step=1,   label="Steps")
+                guidance   = gr.Slider(1,  15,  value=DEFAULT_GUIDANCE,   step=0.5, label="Guidance scale")
+                lora_scale = gr.Slider(0.0, 1.5, value=DEFAULT_LORA_SCALE, step=0.05, label="LoRA strength")
+                seed       = gr.Number(value=-1, label="Seed  (−1 = random)", precision=0)
+
             gr.Examples(
                 examples=[
-                    ["cable knit, Worsted, 20 stitches and 26 rows = 4 inches"],
-                    ["lace, Fingering, openwork stitch"],
-                    ["colorwork swatch, Aran weight, two-color stranded pattern"],
-                    ["chunky cable knit sweater on a plain background"],
-                    ["close-up of ribbing texture, soft natural light"],
-                    ["simple colorwork swatch, worsted weight, solid color"],
-                    ["stockinette swatch in mustard yellow"],
-                    ["a cardigan with intricate cable panels, draped over a chair"],
-                    ["moss stitch in a color gradient, hand-dyed yarn look"],
-                    ["a knitted swatch combining lace and cable patterns"]
+                    # Simple
+                    ["knitted swatch, red"],
+                    ["stockinette, navy blue"],
+                    ["cable stitch, pink"],
+                    # Medium
+                    ["seed stitch swatch, chunky weight, mustard yellow"],
+                    ["ribbed scarf texture, dk weight, forest green"],
+                    ["honeycomb stitch swatch, aran weight, off-white"],
+                    # Detailed
+                    ["fair island stranded colorwork, worsted weight, navy and red"],
+                    ["cable knit swatch, aran weight, purple"],
+                    ["lace swatch, fingering weight, lavender, delicate openwork pattern"],
                 ],
                 inputs=prompt,
                 label="Quick prompts",
             )
 
-        # ── Preview ───────────────────────────────────────────────────────
+        # ── Preview ──────────────────────────────────────────────────────
         with gr.Column(scale=1, elem_id="right-col"):
             output = gr.Image(
                 label="Preview",
                 type="pil",
-                height=420,
+                height=510,
                 elem_id="swatch-out",
             )
             gr.HTML(META_BADGES)
@@ -470,7 +427,7 @@ with gr.Blocks(
 
     gen_btn.click(
         generate,
-        inputs=[prompt, steps, guidance, seed, lora_scale],
+        inputs=[prompt, steps, guidance, lora_scale, seed],
         outputs=output,
     )
 
