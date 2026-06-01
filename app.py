@@ -12,6 +12,7 @@ from pathlib import Path
 import torch
 import gradio as gr
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+from pathlib import Path
 
 # ── Paths & model config ─────────────────────────────────────────────────────
 BASE_DIR     = Path(__file__).parent
