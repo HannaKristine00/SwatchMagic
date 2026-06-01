@@ -397,18 +397,11 @@ with gr.Blocks(
 
             gr.Examples(
                 examples=[
-                    # Simple
-                    ["knitted swatch, red"],
-                    ["stockinette, navy blue"],
-                    ["cable stitch, pink"],
-                    # Medium
-                    ["seed stitch swatch, chunky weight, mustard yellow"],
-                    ["ribbed scarf texture, dk weight, forest green"],
-                    ["honeycomb stitch swatch, aran weight, off-white"],
-                    # Detailed
-                    ["fair island stranded colorwork, worsted weight, navy and red"],
-                    ["cable knit swatch, aran weight, purple"],
-                    ["lace swatch, fingering weight, lavender, delicate openwork pattern"],
+                    ["stockinette, aran weight, cream"],
+                    ["cable stitch swatch, dk weight, grey"],
+                    ["ribbing, bulky weight, blue"],
+                    ["fair island stranded colorwork, aran weight, navy and red"],
+                    ["lace swatch, fingering weight, openwork pattern"],
                 ],
                 inputs=prompt,
                 label="Quick prompts",
