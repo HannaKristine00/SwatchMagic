@@ -49,8 +49,8 @@ Save time, skip the guesswork, and focus on what matters: creating.
 
 
 ## Video Demo
-[![Watch the video](https://raw.githubusercontent.com/HannaKristine00/SwatchMagic/edit/main/demo/DemoVido.png)]
-(https://raw.githubusercontent.com//HannaKristine00/SwatchMagic/edit/main/demo/video.mp4)
+[![Watch the demo here!](https://img.youtube.com/vi/VIDEO_ID/0.jpg)]
+(https://youtu.be/q_zKx4ksjhY)
 
 ---
 
