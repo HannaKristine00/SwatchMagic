@@ -49,7 +49,7 @@ Save time, skip the guesswork, and focus on what matters: creating.
 
 
 ## Video Demo
-[![Watch the video](https://raw.githubusercontent.com/HannaKristine00/SwatchMagic/edit/main/demo/thumbnail.jpg)]
+[![Watch the video](https://raw.githubusercontent.com/HannaKristine00/SwatchMagic/edit/main/demo/DemoVido.png)]
 (https://raw.githubusercontent.com//HannaKristine00/SwatchMagic/edit/main/demo/video.mp4)
 
 ---
