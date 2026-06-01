@@ -47,6 +47,11 @@ Save time, skip the guesswork, and focus on what matters: creating.
 5. Click on "Generate" brutton to create knitting image
 6. Preview and download image
 
+
+## Video Demo
+[![Watch the video](https://raw.githubusercontent.com/HannaKristine00/SwatchMagic/edit/main/demo/thumbnail.jpg)]
+(https://raw.githubusercontent.com//HannaKristine00/SwatchMagic/edit/main/demo/video.mp4)
+
 ---
 
 
