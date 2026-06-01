@@ -396,7 +396,7 @@ with gr.Blocks(
                 seed       = gr.Number(value=-1, label="Seed  (−1 = random)", precision=0)
 
             gr.Examples(
-                examples=[X^x
+                examples=[
                           
                     ["stockinette, aran weight, white"],
                     ["cable stitch swatch, dk weight, grey"],
